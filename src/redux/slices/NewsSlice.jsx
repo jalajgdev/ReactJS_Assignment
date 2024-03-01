@@ -1,4 +1,4 @@
-// Inside NewsSlice.jsx
+
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -6,7 +6,7 @@ const initialState = {
   suggestions: [],
   newsList: [],
   currentPage: 1,
-  totalResults: 0, // Add this line to store the total number of results
+  totalResults: 0, 
 };
 
 const newsSlice = createSlice({
@@ -26,7 +26,7 @@ const newsSlice = createSlice({
       state.currentPage = action.payload;
     },
     setTotalResults: (state, action) => {
-      state.totalResults = action.payload; // Add this reducer
+      state.totalResults = action.payload; 
     },
   },
 });

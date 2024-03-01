@@ -1,4 +1,3 @@
-// Inside App.jsx
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -17,7 +16,7 @@ import {
   setSuggestions,
   setNewsList,
   setCurrentPage,
-  setTotalResults, // Add this line to import setTotalResults
+  setTotalResults, 
 } from "./redux/slices/NewsSlice.jsx";
 import { baseUrl } from "./constants/baseUrl.js";
 import NewsList from "./components/NewsList";
@@ -60,7 +59,7 @@ const App = () => {
         const data = await response.json();
 
         dispatch(setNewsList(data.response?.results || []));
-        dispatch(setTotalResults(data.response?.total || 0)); // Update totalResults
+        dispatch(setTotalResults(data.response?.total || 0));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -162,7 +161,7 @@ const App = () => {
           {newsList.length > 0 && (
             <Pagination
               currentPage={currentPage}
-              totalPages={Math.ceil(totalResults / pageSize)} // Update this line
+              totalPages={Math.ceil(totalResults / pageSize)} 
               onPageChange={handlePageChange}
             />
           )}
