@@ -1,0 +1,13 @@
+body{
+  background-color: #f6f6f9;
+}
+.search_btn{
+  position: absolute;
+  right: 338px;
+  box-shadow: none;
+  padding: 16px;
+  background: none;
+  color: #535bf2;
+  
+}
+
