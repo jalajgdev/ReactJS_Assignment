@@ -36,7 +36,7 @@ export const {
   setSuggestions,
   setNewsList,
   setCurrentPage,
-  setTotalResults, // Add this line to export the setTotalResults action
+  setTotalResults, 
 } = newsSlice.actions;
 
 export default newsSlice.reducer;
