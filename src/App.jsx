@@ -89,15 +89,15 @@ const App = () => {
   const handleSearch = () => {
     dispatch(setCurrentPage(1));
     dispatch(setSuggestions([]));
-    updateURL(searchTerm); 
+    updateURL(searchTerm, currentPage, pageSize); 
   };
-
+  
   const handleSuggestionClick = (clickedSuggestion) => {
     dispatch(setSuggestions([]));
     dispatch(setSearchTerm(clickedSuggestion.webTitle));
     dispatch(setCurrentPage(1));
     setLocalSuggestions([]);
-    updateURL(clickedSuggestion.webTitle); 
+    updateURL(clickedSuggestion.webTitle, currentPage, pageSize); 
   };
 
   const handlePageChange = (page) => {
