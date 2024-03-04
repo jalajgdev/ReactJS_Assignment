@@ -36,7 +36,7 @@ const App = () => {
     try {
       if (!searchTerm) return setLocalSuggestions([]);
 
-      const apiUrl = `${baseUrl}tags?q=${searchTerm}&api-key=test`;
+      const apiUrl = `${baseUrl}search?${searchTerm}api-key=test&show-fields=thumbnail,headline&page=${currentPage}&page-size=${pageSize}`;
       const response = await fetch(apiUrl);
       const data = await response.json();
       setLocalSuggestions(data.response?.results || []);
@@ -49,24 +49,36 @@ const App = () => {
     fetchSuggestions();
   }, [searchTerm]);
 
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!searchTerm) return dispatch(setNewsList([]));
-
-        const apiUrl = `${baseUrl}search?api-key=test&q=${searchTerm}&show-fields=thumbnail,headline,keyword&page=${currentPage}&page-size=${pageSize}`;
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-
-        dispatch(setNewsList(data.response?.results || []));
-        dispatch(setTotalResults(data.response?.total || 0));
+        if (!searchTerm) return; 
+  
+        const tagsUrl = `${baseUrl}tags?q=${searchTerm}&api-key=test&show-fields=thumbnail,headline&page=${currentPage}&page-size=${pageSize}`;
+        const tagsResponse = await fetch(tagsUrl);
+        const tagsData = await tagsResponse.json();
+        setLocalSuggestions(tagsData.response?.results || []);
+        let keywordString = '';
+        tagsData.response?.results.forEach(tag => {
+          keywordString += tag.webTitle + ' ';
+        });
+  
+        const searchUrl = `${baseUrl}search?api-key=test&q=${searchTerm}&show-fields=thumbnail,headline,keyword=${keywordString.trim()}&page=${currentPage}&page-size=${pageSize}`;
+        const searchResponse = await fetch(searchUrl);
+        const searchData = await searchResponse.json();
+        dispatch(setNewsList(searchData.response?.results || []));
+        dispatch(setTotalResults(searchData.response?.total || 0));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-
-    if (searchTerm) fetchData();
+  
+    fetchData();
   }, [searchTerm, currentPage, dispatch]);
+  
+
 
   const handleSearch = () => {
     dispatch(setCurrentPage(1));
