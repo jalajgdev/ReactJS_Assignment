@@ -58,7 +58,7 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true);
+        setIsLoading(true); 
         if (!searchTerm) return;
 
         const tagsUrl = `${baseUrl}tags?q=${searchTerm}&api-key=test&show-fields=thumbnail,headline&page=${currentPage}&page-size=${pageSize}`;
@@ -78,17 +78,18 @@ const App = () => {
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setIsLoading(false);
+        setIsLoading(false); 
       }
     };
 
     fetchData();
   }, [searchTerm, currentPage, dispatch]);
 
+
   const handleSearch = () => {
     dispatch(setCurrentPage(1));
     dispatch(setSuggestions([]));
-    updateURL(searchTerm);
+    updateURL(searchTerm); 
   };
 
   const handleSuggestionClick = (clickedSuggestion) => {
@@ -96,7 +97,7 @@ const App = () => {
     dispatch(setSearchTerm(clickedSuggestion.webTitle));
     dispatch(setCurrentPage(1));
     setLocalSuggestions([]);
-    updateURL(clickedSuggestion.webTitle);
+    updateURL(clickedSuggestion.webTitle); 
   };
 
   const handlePageChange = (page) => {
@@ -108,16 +109,15 @@ const App = () => {
     dispatch(setSuggestions([]));
     dispatch(setCurrentPage(1));
     setLocalSuggestions([]);
-    updateURL(keyword);
+    updateURL(keyword); 
   };
 
   const handleInputChange = (e) => {
     const newSearchTerm = e.target.value;
     dispatch(setSearchTerm(newSearchTerm));
     setIsSelected(false);
-    updateURL(newSearchTerm, currentPage, pageSize);
+    updateURL(newSearchTerm,pageSize, currentPage);
   };
-
   const updateURL = (searchTerm, pageSize, currentPage) => {
     const params = new URLSearchParams();
 
@@ -139,9 +139,9 @@ const App = () => {
     window.history.pushState({}, "", newUrl);
   };
 
+
   return (
     <Container className="search-container">
-     {isLoading && <Loader/>}
       <Typography variant="h4" gutterBottom>
         News Search
       </Typography>
@@ -153,76 +153,79 @@ const App = () => {
           onChange={handleInputChange}
           sx={{ width: "100%", marginBottom: 2 }}
         />
-        <Button
-          className=""
-          style={{ margin: "-45px" }}
-          onClick={handleSearch}
-        >
+        <Button className="" style={{ margin: "-45px" }} onClick={handleSearch}>
           <SearchIcon style={{ padding: "44px 18px 13px 1px" }} />
         </Button>
       </div>
 
-      {localSuggestions.length > 0 && !isSelected && (
-        <Paper
-          elevation={3}
-          sx={{
-            padding: 2,
-            marginTop: 2,
-            maxWidth: 300,
-            borderRadius: 3,
-            boxShadow: "0 0 3px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          <Typography variant="subtitle1">Suggestions</Typography>
-          <List>
-            {localSuggestions.map((suggestion) => (
-              <ListItem
-                key={suggestion.id}
-                onClick={() => {
-                  setIsSelected(true);
-                  handleSuggestionClick(suggestion);
-                }}
-                sx={{
-                  cursor: "pointer",
-                  "&:hover": { backgroundColor: "#f5f5f5" },
-                }}
-              >
-                <Avatar
-                  alt={suggestion.webTitle}
-                  src={suggestion.iconUrl || "default-avatar-url"}
-                />
-                <ListItemText
-                  style={{ paddingLeft: "12px" }}
-                  primary={suggestion.webTitle}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
-      )}
-      {isSelected && searchTerm.length > 0 ? (
+      {isLoading ? (
+        <Loader /> 
+      ) : (
         <>
-          <NewsList
-            newsList={newsList}
-            handleKeywordClick={handleKeywordClick}
-          />
-          {newsList.length > 0 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={Math.ceil(totalResults / pageSize)}
-              onPageChange={handlePageChange}
+          {localSuggestions.length > 0 && !isSelected && (
+            <Paper
+              elevation={3}
+              sx={{
+                padding: 2,
+                marginTop: 2,
+                maxWidth: 300,
+                borderRadius: 3,
+                boxShadow: "0 0 3px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <Typography variant="subtitle1">Suggestions</Typography>
+              <List>
+                {localSuggestions.map((suggestion) => (
+                  <ListItem
+                    key={suggestion.id}
+                    onClick={() => {
+                      setIsSelected(true);
+                      handleSuggestionClick(suggestion);
+                    }}
+                    sx={{
+                      cursor: "pointer",
+                      "&:hover": { backgroundColor: "#f5f5f5" },
+                    }}
+                  >
+                    <Avatar
+                      alt={suggestion.webTitle}
+                      src={suggestion.iconUrl || "default-avatar-url"}
+                    />
+                    <ListItemText
+                      style={{ paddingLeft: "12px" }}
+                      primary={suggestion.webTitle}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
+          )}
+          {isSelected && searchTerm.length > 0 ? (
+            <>
+              <NewsList
+                newsList={newsList}
+                handleKeywordClick={handleKeywordClick}
+              />
+              {newsList.length > 0 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={Math.ceil(totalResults / pageSize)}
+                  onPageChange={handlePageChange}
+                />
+              )}
+            </>
+          ) : (
+            <Message
+              searchTerm={searchTerm}
+              isSelected={isSelected}
+              localSuggestions={localSuggestions}
             />
           )}
         </>
-      ) : (
-        <Message
-          searchTerm={searchTerm}
-          isSelected={isSelected}
-          localSuggestions={localSuggestions}
-        />
       )}
     </Container>
   );
 };
+
 
 export default App;
