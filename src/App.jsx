@@ -16,12 +16,14 @@ import {
   setSuggestions,
   setNewsList,
   setCurrentPage,
-  setTotalResults, 
+  setTotalResults,
 } from "./redux/slices/NewsSlice.jsx";
 import { baseUrl } from "./constants/baseUrl.js";
 import NewsList from "./components/NewsList";
 import Pagination from "./components/Pagination";
 import SearchIcon from "@mui/icons-material/Search";
+import Message from "./components/Message.jsx";
+import Loader from "./components/Loader.jsx";
 
 const App = () => {
   const pageSize = 15;
@@ -31,9 +33,11 @@ const App = () => {
   );
   const [localSuggestions, setLocalSuggestions] = useState([]);
   const [isSelected, setIsSelected] = useState();
+  const [isLoading, setIsLoading] = useState(false); 
 
   const fetchSuggestions = async () => {
     try {
+      setIsLoading(true); 
       if (!searchTerm) return setLocalSuggestions([]);
 
       const apiUrl = `${baseUrl}search?${searchTerm}api-key=test&show-fields=thumbnail,headline&page=${currentPage}&page-size=${pageSize}`;
@@ -42,6 +46,8 @@ const App = () => {
       setLocalSuggestions(data.response?.results || []);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
+    } finally {
+      setIsLoading(false); 
     }
   };
 
@@ -49,22 +55,21 @@ const App = () => {
     fetchSuggestions();
   }, [searchTerm]);
 
-
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!searchTerm) return; 
-  
+        setIsLoading(true);
+        if (!searchTerm) return;
+
         const tagsUrl = `${baseUrl}tags?q=${searchTerm}&api-key=test&show-fields=thumbnail,headline&page=${currentPage}&page-size=${pageSize}`;
         const tagsResponse = await fetch(tagsUrl);
         const tagsData = await tagsResponse.json();
         setLocalSuggestions(tagsData.response?.results || []);
-        let keywordString = '';
-        tagsData.response?.results.forEach(tag => {
-          keywordString += tag.webTitle + ' ';
+        let keywordString = "";
+        tagsData.response?.results.forEach((tag) => {
+          keywordString += tag.webTitle + " ";
         });
-  
+
         const searchUrl = `${baseUrl}search?api-key=test&q=${searchTerm}&show-fields=thumbnail,headline,keyword=${keywordString.trim()}&page=${currentPage}&page-size=${pageSize}`;
         const searchResponse = await fetch(searchUrl);
         const searchData = await searchResponse.json();
@@ -72,17 +77,18 @@ const App = () => {
         dispatch(setTotalResults(searchData.response?.total || 0));
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
-  
+
     fetchData();
   }, [searchTerm, currentPage, dispatch]);
-  
-
 
   const handleSearch = () => {
     dispatch(setCurrentPage(1));
     dispatch(setSuggestions([]));
+    updateURL(searchTerm);
   };
 
   const handleSuggestionClick = (clickedSuggestion) => {
@@ -90,6 +96,7 @@ const App = () => {
     dispatch(setSearchTerm(clickedSuggestion.webTitle));
     dispatch(setCurrentPage(1));
     setLocalSuggestions([]);
+    updateURL(clickedSuggestion.webTitle);
   };
 
   const handlePageChange = (page) => {
@@ -101,15 +108,40 @@ const App = () => {
     dispatch(setSuggestions([]));
     dispatch(setCurrentPage(1));
     setLocalSuggestions([]);
+    updateURL(keyword);
   };
 
   const handleInputChange = (e) => {
-    dispatch(setSearchTerm(e.target.value));
+    const newSearchTerm = e.target.value;
+    dispatch(setSearchTerm(newSearchTerm));
     setIsSelected(false);
+    updateURL(newSearchTerm, currentPage, pageSize);
+  };
+
+  const updateURL = (searchTerm, pageSize, currentPage) => {
+    const params = new URLSearchParams();
+
+    if (searchTerm) {
+      params.set("searchText", encodeURIComponent(searchTerm));
+    } else {
+      params.delete("searchText");
+    }
+
+    if (pageSize !== undefined) {
+      params.set("count", pageSize);
+    }
+
+    if (currentPage !== undefined) {
+      params.set("pageNo", currentPage);
+    }
+
+    const newUrl = `/?${params.toString()}`;
+    window.history.pushState({}, "", newUrl);
   };
 
   return (
     <Container className="search-container">
+     {isLoading && <Loader/>}
       <Typography variant="h4" gutterBottom>
         News Search
       </Typography>
@@ -121,7 +153,11 @@ const App = () => {
           onChange={handleInputChange}
           sx={{ width: "100%", marginBottom: 2 }}
         />
-        <Button className="" style={{ margin: "-45px" }} onClick={handleSearch}>
+        <Button
+          className=""
+          style={{ margin: "-45px" }}
+          onClick={handleSearch}
+        >
           <SearchIcon style={{ padding: "44px 18px 13px 1px" }} />
         </Button>
       </div>
@@ -173,15 +209,17 @@ const App = () => {
           {newsList.length > 0 && (
             <Pagination
               currentPage={currentPage}
-              totalPages={Math.ceil(totalResults / pageSize)} 
+              totalPages={Math.ceil(totalResults / pageSize)}
               onPageChange={handlePageChange}
             />
           )}
         </>
       ) : (
-        <Typography variant="body2">
-          {searchTerm ? "No matching results found." : ""}
-        </Typography>
+        <Message
+          searchTerm={searchTerm}
+          isSelected={isSelected}
+          localSuggestions={localSuggestions}
+        />
       )}
     </Container>
   );
