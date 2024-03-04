@@ -11,7 +11,7 @@ const Message = ({ searchTerm, localSuggestions }) => {
     message = "Happy Searching!";
     messageStyle = { fontSize: '4rem' };
     icon = <HappyFaceIcon fontSize="large" style={{ color: '#FFC107' }} />;
-  } else if (localSuggestions.length > 0) {
+  } else if (localSuggestions.length > 0) {git 
     message = "Related found!";
     icon = <RelatedIcon fontSize="large" style={{ color: '#4CAF50' }} />;
   } else if (!localSuggestions || localSuggestions.length === 0) {
