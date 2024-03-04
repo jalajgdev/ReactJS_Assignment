@@ -37,8 +37,8 @@ const App = () => {
 
   const fetchSuggestions = async () => {
     try {
-      setIsLoading(true); 
       if (!searchTerm) return setLocalSuggestions([]);
+      setIsLoading(true); 
 
       const apiUrl = `${baseUrl}search?${searchTerm}api-key=test&show-fields=thumbnail,headline&page=${currentPage}&page-size=${pageSize}`;
       const response = await fetch(apiUrl);
@@ -162,7 +162,7 @@ const App = () => {
         <Loader /> 
       ) : (
         <>
-          {localSuggestions.length > 0 && !isSelected && (
+          {!!localSuggestions.length && !isSelected && (
             <Paper
               elevation={3}
               sx={{
