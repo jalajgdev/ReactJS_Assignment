@@ -45,10 +45,46 @@ styles: Global styles or styling-related files.
 App.jsx: Main application component.
 NewsList.jsx: Component for rendering the list of news articles
 Pagination.jsx: Component to render 15 items per page.
+Loader.jsx:To provide loader on if api takes timeto fetch data.
 public: Static assets and HTML template.
-Additional Notes
+
+Redux Toolkit:
 The app uses the Redux Toolkit for state management, with slices for managing search term, suggestions, news list, and current page.
 
 Material-UI components are utilized for a consistent and visually appealing UI.
+Implement a text input field where users can enter search queries.
+Set up a state variable to store the search term entered by the user.
+Capture user input using the onChange event handler on the input field.
+Use the entered search term to filter and display relevant news articles.
 
-The application makes API requests to fetch news data based on the user's search query.
+Real-time Suggestions:
+
+As the user types in the search input field, make asynchronous requests to fetch real-time suggestions based on the entered search term.
+Display these suggestions dynamically below the search input field.
+Handle selection of a suggestion to update the search input field with the selected suggestion.
+
+Pagination:
+Implement pagination to allow users to navigate through multiple pages of search results.
+Display a set number of news articles per page i.e 15.
+Provide navigation controls (e.g., "Previous" and "Next" buttons) to allow users to move between pages.
+Update the displayed news articles when the user navigates to a different page.
+
+Keyword Tags:
+
+Extract keywords/tags associated with each news article from the API response.
+Display these keywords/tags as clickable tags alongside each news article.
+Implement functionality to filter news articles based on clicked keyword tags.
+Update the displayed news articles dynamically when a keyword tag is clicked.
+
+Responsive Design:
+Ensure that the application layout and components adjust gracefully to different screen sizes and devices.
+Utilize responsive design of MUI designs.
+Test the application on various devices and screen sizes to ensure consistent behavior and appearance.
+
+Loading Indicators:
+
+Displayed loading indicators (MUI loader icon CircularProgress) to indicate to users that the application is fetching data or performing background processes.
+Showed loading indicators while waiting for search results, pagination, and other asynchronous operations to complete.
+Hide loading indicators once the data is successfully loaded or an error occurs.
+
+
