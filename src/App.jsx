@@ -39,13 +39,12 @@ const App = () => {
     try {
       if (!searchTerm) return setLocalSuggestions([]);
       setIsLoading(true);
-
       const apiUrl = `${baseUrl}search?${searchTerm}api-key=test&show-fields=thumbnail,headline&page=${currentPage}&page-size=${pageSize}`;
       const response = await fetch(apiUrl);
       const data = await response.json();
       setLocalSuggestions(data.response?.results || []);
     } catch (error) {
-      console.error("Error fetching suggestions:", error);
+      console.error("Error in fetching suggestions: ", error);
     } finally {
       setIsLoading(false);
     }
@@ -62,21 +61,23 @@ const App = () => {
         if (!searchTerm) return;
 
         const tagsUrl = `${baseUrl}tags?q=${searchTerm}&api-key=test&show-fields=thumbnail,headline&page=${currentPage}&page-size=${pageSize}`;
+
         const tagsResponse = await fetch(tagsUrl);
         const tagsData = await tagsResponse.json();
         setLocalSuggestions(tagsData.response?.results || []);
-        let keywordString = "";
+
+        let keywordStr = "";
         tagsData.response?.results.forEach((tag) => {
-          keywordString += tag.webTitle + " ";
+          keywordStr += tag.webTitle + " ";
         });
 
-        const searchUrl = `${baseUrl}search?api-key=test&q=${searchTerm}&show-fields=thumbnail,headline,keyword=${keywordString.trim()}&page=${currentPage}&page-size=${pageSize}`;
+        const searchUrl = `${baseUrl}search?api-key=test&q=${searchTerm}&show-fields=thumbnail,headline,keyword=${keywordStr.trim()}&page=${currentPage}&page-size=${pageSize}`;
         const searchResponse = await fetch(searchUrl);
         const searchData = await searchResponse.json();
         dispatch(setNewsList(searchData.response?.results || []));
         dispatch(setTotalResults(searchData.response?.total || 0));
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching data: ", error);
       } finally {
         setIsLoading(false);
       }
@@ -103,6 +104,7 @@ const App = () => {
 
   const handlePageChange = (page) => {
     dispatch(setCurrentPage(page));
+    updateURL(searchTerm, page, pageSize);
   };
 
   const handleKeywordClick = (keyword) => {
@@ -110,33 +112,40 @@ const App = () => {
     dispatch(setSuggestions([]));
     dispatch(setCurrentPage(1));
     setLocalSuggestions([]);
-    updateURL(keyword);
+    dispatch(setSearchTerm(sectionName));
+    updateURL(keyword, 1, pageSize);
   };
 
   const handleInputChange = (e) => {
     const newSearchTerm = e.target.value;
     dispatch(setSearchTerm(newSearchTerm));
     setIsSelected(false);
-    updateURL(newSearchTerm, pageSize, currentPage);
+    updateURL(newSearchTerm, currentPage, pageSize);
   };
 
-  const updateURL = (searchTerm, pageSize, currentPage) => {
-    const params = new URLSearchParams();
-    if (searchTerm) {
-      params.set("searchText", encodeURIComponent(searchTerm));
-    } else {
-      params.delete("searchText");
+  useEffect(() => {
+    window.history.replaceState({}, "", "/");
+  }, []);
+  const updateURL = (searchTerm, currentPage, pageSize) => {
+    try {
+      const params = new URLSearchParams();
+      if (searchTerm) {
+        params.set("searchText", encodeURIComponent(searchTerm));
+      } else {
+        params.delete("searchText");
+      }
+      if (currentPage !== undefined) {
+        params.set("currentPage", currentPage);
+      }
+      if (pageSize !== undefined) {
+        params.set("pageSize", pageSize);
+      }
+      const queryString = params.toString();
+      const newUrl = `/?${queryString}`;
+      window.history.pushState({}, "", newUrl);
+    } catch (error) {
+      console.error("An error occurred while updating the URL: ", error);
     }
-    if (pageSize !== undefined) {
-      params.set("count", pageSize);
-    }
-    if (currentPage !== undefined) {
-      params.set("pageNo", currentPage);
-    }
-    const newUrl = `/?searchText=${encodeURIComponent(
-      searchTerm
-    )}&count=${pageSize}&pageNo=${currentPage}`;
-    window.history.pushState({}, "", newUrl);
   };
 
   return (
@@ -168,8 +177,8 @@ const App = () => {
                 padding: 2,
                 marginTop: 2,
                 maxWidth: 300,
-                maxHeight: 300, 
-                overflowY: "scroll", 
+                maxHeight: 300,
+                overflowY: "scroll",
                 borderRadius: 3,
                 boxShadow: "0 0 3px rgba(0, 0, 0, 0.1)",
               }}
@@ -206,6 +215,9 @@ const App = () => {
               <NewsList
                 newsList={newsList}
                 handleKeywordClick={handleKeywordClick}
+                searchTerm={searchTerm}
+                currentPage={currentPage}
+                pageSize={pageSize}
               />
               {newsList.length > 0 && (
                 <Pagination
