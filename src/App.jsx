@@ -33,12 +33,12 @@ const App = () => {
   );
   const [localSuggestions, setLocalSuggestions] = useState([]);
   const [isSelected, setIsSelected] = useState();
-  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchSuggestions = async () => {
     try {
       if (!searchTerm) return setLocalSuggestions([]);
-      setIsLoading(true); 
+      setIsLoading(true);
 
       const apiUrl = `${baseUrl}search?${searchTerm}api-key=test&show-fields=thumbnail,headline&page=${currentPage}&page-size=${pageSize}`;
       const response = await fetch(apiUrl);
@@ -47,7 +47,7 @@ const App = () => {
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
@@ -58,7 +58,7 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true); 
+        setIsLoading(true);
         if (!searchTerm) return;
 
         const tagsUrl = `${baseUrl}tags?q=${searchTerm}&api-key=test&show-fields=thumbnail,headline&page=${currentPage}&page-size=${pageSize}`;
@@ -78,26 +78,27 @@ const App = () => {
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setIsLoading(false); 
+        setIsLoading(false);
       }
     };
 
     fetchData();
   }, [searchTerm, currentPage, dispatch]);
 
-
   const handleSearch = () => {
     dispatch(setCurrentPage(1));
     dispatch(setSuggestions([]));
-    updateURL(searchTerm, currentPage, pageSize); 
+    setLocalSuggestions([]);
+    setIsSelected(true);
+    updateURL(searchTerm, 1, pageSize);
   };
-  
+
   const handleSuggestionClick = (clickedSuggestion) => {
     dispatch(setSuggestions([]));
     dispatch(setSearchTerm(clickedSuggestion.webTitle));
     dispatch(setCurrentPage(1));
     setLocalSuggestions([]);
-    updateURL(clickedSuggestion.webTitle, currentPage, pageSize); 
+    updateURL(clickedSuggestion.webTitle, currentPage, pageSize);
   };
 
   const handlePageChange = (page) => {
@@ -109,36 +110,34 @@ const App = () => {
     dispatch(setSuggestions([]));
     dispatch(setCurrentPage(1));
     setLocalSuggestions([]);
-    updateURL(keyword); 
+    updateURL(keyword);
   };
 
   const handleInputChange = (e) => {
     const newSearchTerm = e.target.value;
     dispatch(setSearchTerm(newSearchTerm));
     setIsSelected(false);
-    updateURL(newSearchTerm,pageSize, currentPage);
+    updateURL(newSearchTerm, pageSize, currentPage);
   };
+
   const updateURL = (searchTerm, pageSize, currentPage) => {
     const params = new URLSearchParams();
-
     if (searchTerm) {
       params.set("searchText", encodeURIComponent(searchTerm));
     } else {
       params.delete("searchText");
     }
-
     if (pageSize !== undefined) {
       params.set("count", pageSize);
     }
-
     if (currentPage !== undefined) {
       params.set("pageNo", currentPage);
     }
-
-    const newUrl = `/?${params.toString()}`;
+    const newUrl = `/?searchText=${encodeURIComponent(
+      searchTerm
+    )}&count=${pageSize}&pageNo=${currentPage}`;
     window.history.pushState({}, "", newUrl);
   };
-
 
   return (
     <Container className="search-container">
@@ -159,7 +158,7 @@ const App = () => {
       </div>
 
       {isLoading ? (
-        <Loader /> 
+        <Loader />
       ) : (
         <>
           {!!localSuggestions.length && !isSelected && (
@@ -226,6 +225,5 @@ const App = () => {
     </Container>
   );
 };
-
 
 export default App;
