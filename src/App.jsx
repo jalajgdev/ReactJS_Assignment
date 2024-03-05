@@ -168,6 +168,8 @@ const App = () => {
                 padding: 2,
                 marginTop: 2,
                 maxWidth: 300,
+                maxHeight: 300, 
+                overflowY: "scroll", 
                 borderRadius: 3,
                 boxShadow: "0 0 3px rgba(0, 0, 0, 0.1)",
               }}

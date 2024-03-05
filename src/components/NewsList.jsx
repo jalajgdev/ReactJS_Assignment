@@ -28,16 +28,16 @@ const NewsList = ({ newsList, handleKeywordClick }) => {
                 <>
                   {news.tags &&
                     news.tags
-                      .filter((tag) => tag.type === "keyword")
-                      .map((keyword) => (
+                      .filter((tag) => tag.type === "keyword" || tag.type === "searchTerm") // Filter based on keyword or searchTerm
+                      .map((tag) => (
                         <Typography
-                          key={keyword.id}
+                          key={tag.id}
                           component="span"
                           variant="body2"
                           sx={{ cursor: "pointer", marginLeft: 1, color: "blue" }}
-                          onClick={() => handleKeywordClick(keyword.webTitle)}
+                          onClick={() => handleKeywordClick(tag.webTitle)}
                         >
-                          #{keyword.webTitle}
+                          #{tag.webTitle}
                         </Typography>
                       ))}
                 </>
@@ -52,3 +52,4 @@ const NewsList = ({ newsList, handleKeywordClick }) => {
 };
 
 export default NewsList;
+
